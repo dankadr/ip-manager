@@ -4,9 +4,9 @@ FROM node:18
 # Set the working directory in the container
 WORKDIR /ip-manager
 
-# Copy package.json and package-lock.json for both frontend and backend
+# Copy package.json and package-lock.json for both client and backend
 COPY package*.json ./
-COPY frontend/package*.json ./frontend/
+COPY client/package*.json ./client/
 COPY server/package*.json ./server/
 
 # Install dependencies for both client and backend
@@ -27,7 +27,7 @@ RUN mkdir -p server/public && mv client/build/* server/public/
 # EXPOSE $PORT
 
 # Set working directory to server folder
-WORKDIR /app/server
+WORKDIR /ip-manager/server
 
 # Start the application
 CMD ["sh", "-c", "node server.js"]

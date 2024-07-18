@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001';
+// const API_BASE_URL = '';
 
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -11,7 +11,7 @@ function Login({ onLoginSuccess }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/login`, { username, password });
+      const response = await axios.post(`/api/login`, { username, password });
       localStorage.setItem('token', response.data.token);
       onLoginSuccess(response.data.isAdmin);
     } catch (error) {

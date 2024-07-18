@@ -59,6 +59,15 @@ const verifyToken = (req, res, next) => {
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/api/')) {
+    const correctedPath = req.path.replace('/api/api/', '/api/');
+    return res.redirect(307, correctedPath + req.url.slice(req.path.length));
+  }
+  next();
+});
+
+
 // Login route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
@@ -75,6 +84,8 @@ app.post('/api/login', (req, res) => {
     });
   });
 });
+
+
 
 // Get all IP entries (public access)
 app.get('/api/ips', (req, res) => {
@@ -148,7 +159,7 @@ app.listen(port, () => {
 });
 
 // Helper function to add a user (you can use this to add an admin user)
-export function addUser(username, password, isAdmin) {
+function addUser(username, password, isAdmin) {
     bcrypt.hash(password, 10, (err, hash) => {
       if (err) console.error(err);
       db.run('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', [username, hash, isAdmin ? 1 : 0], (err) => {
@@ -156,6 +167,11 @@ export function addUser(username, password, isAdmin) {
         else console.log(`User ${username} added successfully`);
       });
     });
-  }
-// Helper function to add a user (you can use this to add an admin user)
-//addUser('admin','adminpassword',true)
+}
+
+//Helper function to add a user (you can use this to add an admin user)
+try {
+  addUser('admin','123456',true)  
+} catch (error) {
+  console.log("Error adding user, the user already exists.")
+}

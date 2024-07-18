@@ -3,7 +3,7 @@ import axios from 'axios';
 import Login from './Login';
 import './App.css';
 
-const API_BASE_URL = 'http://localhost:3001';
+
 
 function App() {
   const [ips, setIps] = useState([]);
@@ -24,7 +24,7 @@ function App() {
 
   const fetchIps = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/ips`);
+      const response = await axios.get(`/api/ips`);
       setIps(response.data);
     } catch (error) {
       console.error('Error fetching IPs:', error);
@@ -55,7 +55,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/api/ips`, newIp, {
+      await axios.post(`/api/ips`, newIp, {
         headers: { 'Authorization': localStorage.getItem('token') }
       });
       setNewIp({
@@ -78,7 +78,7 @@ function App() {
   const handleUpdate = async (id) => {
     try {
       const ipToUpdate = ips.find(ip => ip.id === id);
-      await axios.put(`${API_BASE_URL}/api/ips/${id}`, ipToUpdate, {
+      await axios.put(`/api/ips/${id}`, ipToUpdate, {
         headers: { 'Authorization': localStorage.getItem('token') }
       });
       setEditingId(null);
@@ -91,7 +91,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/ips/${id}`, {
+      await axios.delete(`/api/ips/${id}`, {
         headers: { 'Authorization': localStorage.getItem('token') }
       });
       fetchIps();
