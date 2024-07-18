@@ -9,19 +9,19 @@ COPY package*.json ./
 COPY frontend/package*.json ./frontend/
 COPY server/package*.json ./server/
 
-# Install dependencies for both frontend and backend
+# Install dependencies for both client and backend
 RUN npm install
-RUN cd frontend && npm install
+RUN cd client && npm install
 RUN cd server && npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Build the React frontend
-RUN cd frontend && npm run build
+# Build the React client
+RUN cd client && npm run build
 
-# Move the built frontend to a directory the backend can serve
-RUN mkdir -p server/public && mv frontend/build/* server/public/
+# Move the built client to a directory the backend can serve
+RUN mkdir -p server/public && mv client/build/* server/public/
 
 # # Expose the port the app runs on
 # EXPOSE $PORT
@@ -30,4 +30,4 @@ RUN mkdir -p server/public && mv frontend/build/* server/public/
 WORKDIR /app/server
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node server.js"]
