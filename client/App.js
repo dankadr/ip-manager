@@ -13,7 +13,7 @@ function App() {
     description: '',
     assigned_to: ''
   });
-  const [editingIp, setEditingIp] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginPage, setShowLoginPage] = useState(false);
@@ -43,10 +43,10 @@ function App() {
     setIsAdmin(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e, id) => {
     const { name, value } = e.target;
-    if (editingIp) {
-      setEditingIp({ ...editingIp, [name]: value });
+    if (id) {
+      setIps(ips.map(ip => ip.id === id ? { ...ip, [name]: value } : ip));
     } else {
       setNewIp({ ...newIp, [name]: value });
     }
@@ -55,22 +55,15 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingIp) {
-        await axios.put(`${API_BASE_URL}/api/ips/${editingIp.id}`, editingIp, {
-          headers: { 'Authorization': localStorage.getItem('token') }
-        });
-        setEditingIp(null);
-      } else {
-        await axios.post(`${API_BASE_URL}/api/ips`, newIp, {
-          headers: { 'Authorization': localStorage.getItem('token') }
-        });
-        setNewIp({
-          static_ip: '',
-          machine: '',
-          description: '',
-          assigned_to: ''
-        });
-      }
+      await axios.post(`${API_BASE_URL}/api/ips`, newIp, {
+        headers: { 'Authorization': localStorage.getItem('token') }
+      });
+      setNewIp({
+        static_ip: '',
+        machine: '',
+        description: '',
+        assigned_to: ''
+      });
       fetchIps();
     } catch (error) {
       console.error('Error saving IP:', error);
@@ -78,8 +71,22 @@ function App() {
     }
   };
 
-  const handleEdit = (ip) => {
-    setEditingIp(ip);
+  const handleEdit = (id) => {
+    setEditingId(id);
+  };
+
+  const handleUpdate = async (id) => {
+    try {
+      const ipToUpdate = ips.find(ip => ip.id === id);
+      await axios.put(`${API_BASE_URL}/api/ips/${id}`, ipToUpdate, {
+        headers: { 'Authorization': localStorage.getItem('token') }
+      });
+      setEditingId(null);
+      fetchIps();
+    } catch (error) {
+      console.error('Error updating IP:', error);
+      alert('Failed to update IP. Admin access required.');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -113,19 +120,18 @@ function App() {
       <main>
         {isAdmin && (
           <form onSubmit={handleSubmit} className="ip-form">
-            <input name="static_ip" value={editingIp ? editingIp.static_ip : newIp.static_ip} onChange={handleInputChange} placeholder="Static IP" required />
-            <input name="machine" value={editingIp ? editingIp.machine : newIp.machine} onChange={handleInputChange} placeholder="Machine" />
-            <input name="description" value={editingIp ? editingIp.description : newIp.description} onChange={handleInputChange} placeholder="Description" />
-            <input name="assigned_to" value={editingIp ? editingIp.assigned_to : newIp.assigned_to} onChange={handleInputChange} placeholder="Assigned To" />
-            <button type="submit">{editingIp ? 'Update IP' : 'Add IP'}</button>
-            {editingIp && <button type="button" onClick={() => setEditingIp(null)}>Cancel</button>}
+            <input name="machine" value={newIp.machine} onChange={(e) => handleInputChange(e)} placeholder="Machine" />
+            <input name="static_ip" value={newIp.static_ip} onChange={(e) => handleInputChange(e)} placeholder="Static IP" required />
+            <input name="description" value={newIp.description} onChange={(e) => handleInputChange(e)} placeholder="Description" />
+            <input name="assigned_to" value={newIp.assigned_to} onChange={(e) => handleInputChange(e)} placeholder="Assigned To" />
+            <button type="submit">Add IP</button>
           </form>
         )}
         <table>
           <thead>
             <tr>
-              <th>Static IP</th>
               <th>Machine</th>
+              <th>Static IP</th>
               <th>Description</th>
               <th>Assigned To</th>
               <th>Last Updated</th>
@@ -135,14 +141,42 @@ function App() {
           <tbody>
             {ips.map((ip, index) => (
               <tr key={ip.id} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
-                <td>{ip.static_ip}</td>
-                <td>{ip.machine}</td>
-                <td>{ip.description}</td>
-                <td>{ip.assigned_to}</td>
+                <td>
+                  {editingId === ip.id ? (
+                    <input name="machine" value={ip.machine} onChange={(e) => handleInputChange(e, ip.id)} />
+                  ) : (
+                    ip.machine
+                  )}
+                </td>
+                <td>
+                  {editingId === ip.id ? (
+                    <input name="static_ip" value={ip.static_ip} onChange={(e) => handleInputChange(e, ip.id)} />
+                  ) : (
+                    ip.static_ip
+                  )}
+                </td>
+                <td>
+                  {editingId === ip.id ? (
+                    <input name="description" value={ip.description} onChange={(e) => handleInputChange(e, ip.id)} />
+                  ) : (
+                    ip.description
+                  )}
+                </td>
+                <td>
+                  {editingId === ip.id ? (
+                    <input name="assigned_to" value={ip.assigned_to} onChange={(e) => handleInputChange(e, ip.id)} />
+                  ) : (
+                    ip.assigned_to
+                  )}
+                </td>
                 <td>{new Date(ip.last_updated).toLocaleString()}</td>
                 {isAdmin && (
                   <td>
-                    <button onClick={() => handleEdit(ip)} className="edit-btn">Edit</button>
+                    {editingId === ip.id ? (
+                      <button onClick={() => handleUpdate(ip.id)} className="edit-btn">Save</button>
+                    ) : (
+                      <button onClick={() => handleEdit(ip.id)} className="edit-btn">Edit</button>
+                    )}
                     <button onClick={() => handleDelete(ip.id)} className="delete-btn">Delete</button>
                   </td>
                 )}
