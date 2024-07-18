@@ -3,10 +3,12 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+
 
 const app = express();
-const port = 3001;
-const SECRET_KEY = 'your_secret_key'; // Replace with a secure secret key
+const port = process.env.PORT || 8080;
+const SECRET_KEY = 'HM<U<y^SiFfR8VwAYfReNvWYg0rn4is6kajUaXg'; // Replace with a secure secret key
 
 app.use(cors());
 app.use(express.json());
@@ -53,6 +55,9 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
+
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Login route
 app.post('/api/login', (req, res) => {
@@ -132,13 +137,18 @@ app.put('/api/ips/:id', verifyToken, (req, res) => {
   });
 });
 
+// Anything that doesn't match the above, send back the index.html file
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
 // Helper function to add a user (you can use this to add an admin user)
-function addUser(username, password, isAdmin) {
+export function addUser(username, password, isAdmin) {
     bcrypt.hash(password, 10, (err, hash) => {
       if (err) console.error(err);
       db.run('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', [username, hash, isAdmin ? 1 : 0], (err) => {
@@ -147,6 +157,5 @@ function addUser(username, password, isAdmin) {
       });
     });
   }
-
 // Helper function to add a user (you can use this to add an admin user)
 //addUser('admin','adminpassword',true)
