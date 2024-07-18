@@ -8,9 +8,8 @@ const API_BASE_URL = 'http://localhost:3001';
 function App() {
   const [ips, setIps] = useState([]);
   const [newIp, setNewIp] = useState({
-    ip_address: '',
-    device_name: '',
-    mac_address: '',
+    static_ip: '',
+    machine: '',
     description: '',
     assigned_to: ''
   });
@@ -66,9 +65,8 @@ function App() {
           headers: { 'Authorization': localStorage.getItem('token') }
         });
         setNewIp({
-          ip_address: '',
-          device_name: '',
-          mac_address: '',
+          static_ip: '',
+          machine: '',
           description: '',
           assigned_to: ''
         });
@@ -115,9 +113,8 @@ function App() {
       <main>
         {isAdmin && (
           <form onSubmit={handleSubmit} className="ip-form">
-            <input name="ip_address" value={editingIp ? editingIp.ip_address : newIp.ip_address} onChange={handleInputChange} placeholder="IP Address" required />
-            <input name="device_name" value={editingIp ? editingIp.device_name : newIp.device_name} onChange={handleInputChange} placeholder="Device Name" />
-            <input name="mac_address" value={editingIp ? editingIp.mac_address : newIp.mac_address} onChange={handleInputChange} placeholder="MAC Address" />
+            <input name="static_ip" value={editingIp ? editingIp.static_ip : newIp.static_ip} onChange={handleInputChange} placeholder="Static IP" required />
+            <input name="machine" value={editingIp ? editingIp.machine : newIp.machine} onChange={handleInputChange} placeholder="Machine" />
             <input name="description" value={editingIp ? editingIp.description : newIp.description} onChange={handleInputChange} placeholder="Description" />
             <input name="assigned_to" value={editingIp ? editingIp.assigned_to : newIp.assigned_to} onChange={handleInputChange} placeholder="Assigned To" />
             <button type="submit">{editingIp ? 'Update IP' : 'Add IP'}</button>
@@ -127,12 +124,10 @@ function App() {
         <table>
           <thead>
             <tr>
-              <th>IP Address</th>
-              <th>Device Name</th>
-              <th>MAC Address</th>
+              <th>Static IP</th>
+              <th>Machine</th>
               <th>Description</th>
               <th>Assigned To</th>
-              <th>Date Assigned</th>
               <th>Last Updated</th>
               {isAdmin && <th>Actions</th>}
             </tr>
@@ -140,12 +135,10 @@ function App() {
           <tbody>
             {ips.map((ip, index) => (
               <tr key={ip.id} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
-                <td>{ip.ip_address}</td>
-                <td>{ip.device_name}</td>
-                <td>{ip.mac_address}</td>
+                <td>{ip.static_ip}</td>
+                <td>{ip.machine}</td>
                 <td>{ip.description}</td>
                 <td>{ip.assigned_to}</td>
-                <td>{new Date(ip.date_assigned).toLocaleString()}</td>
                 <td>{new Date(ip.last_updated).toLocaleString()}</td>
                 {isAdmin && (
                   <td>

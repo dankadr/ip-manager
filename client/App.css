@@ -151,3 +151,40 @@ th {
 .login-form button:hover {
   background-color: #cc0000;
 }
+
+/* Change edit button to teal */
+.edit-btn {
+  background-color: #008080;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.edit-btn:hover {
+  background-color: #006666;
+}
+
+/* Change add button to green */
+.ip-form button[type="submit"] {
+  padding: 0.5rem 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.ip-form button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+/* Make table header sticky */
+thead {
+  position: sticky;
+  top: 0;
+  background-color: #000;
+  z-index: 1;
+}

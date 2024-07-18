@@ -20,12 +20,10 @@ const db = new sqlite3.Database('./ipmanager.db', (err) => {
 // Create IP entries table
 db.run(`CREATE TABLE IF NOT EXISTS ip_entries (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ip_address TEXT NOT NULL,
-  device_name TEXT,
-  mac_address TEXT,
+  static_ip TEXT NOT NULL,
+  machine TEXT,
   description TEXT,
   assigned_to TEXT,
-  date_assigned TEXT,
   last_updated TEXT
 )`);
 
@@ -85,18 +83,17 @@ app.get('/api/ips', (req, res) => {
 app.post('/api/ips', verifyToken, (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin access required' });
 
-  const { ip_address, device_name, mac_address, description, assigned_to } = req.body;
-  const date_assigned = new Date().toISOString();
-  const last_updated = date_assigned;
+  const { static_ip, machine, description, assigned_to } = req.body;
+  const last_updated = new Date().toISOString();
 
-  db.run(`INSERT INTO ip_entries (ip_address, device_name, mac_address, description, assigned_to, date_assigned, last_updated) 
-          VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-          [ip_address, device_name, mac_address, description, assigned_to, date_assigned, last_updated], 
+  db.run(`INSERT INTO ip_entries (static_ip, machine, description, assigned_to, last_updated) 
+          VALUES (?, ?, ?, ?, ?)`, 
+          [static_ip, machine, description, assigned_to, last_updated], 
           function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({
       message: "success",
-      data: { id: this.lastID, ...req.body, date_assigned, last_updated }
+      data: { id: this.lastID, ...req.body, last_updated }
     });
   });
 });
@@ -115,18 +112,17 @@ app.delete('/api/ips/:id', verifyToken, (req, res) => {
 app.put('/api/ips/:id', verifyToken, (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin access required' });
 
-  const { ip_address, device_name, mac_address, description, assigned_to } = req.body;
+  const { static_ip, machine, description, assigned_to } = req.body;
   const last_updated = new Date().toISOString();
 
   db.run(`UPDATE ip_entries SET
-          ip_address = ?,
-          device_name = ?,
-          mac_address = ?,
+          static_ip = ?,
+          machine = ?,
           description = ?,
           assigned_to = ?,
           last_updated = ?
           WHERE id = ?`,
-          [ip_address, device_name, mac_address, description, assigned_to, last_updated, req.params.id],
+          [static_ip, machine, description, assigned_to, last_updated, req.params.id],
           function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({
@@ -143,14 +139,14 @@ app.listen(port, () => {
 
 // Helper function to add a user (you can use this to add an admin user)
 function addUser(username, password, isAdmin) {
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) console.error(err);
-    db.run('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', [username, hash, isAdmin ? 1 : 0], (err) => {
+    bcrypt.hash(password, 10, (err, hash) => {
       if (err) console.error(err);
-      else console.log(`User ${username} added successfully`);
+      db.run('INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)', [username, hash, isAdmin ? 1 : 0], (err) => {
+        if (err) console.error(err);
+        else console.log(`User ${username} added successfully`);
+      });
     });
-  });
-}
+  }
 
-// Uncomment and run once to add an admin user
-// addUser('admin', 'adminpassword', true);
+// Helper function to add a user (you can use this to add an admin user)
+//addUser('admin','adminpassword',true)
