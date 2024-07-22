@@ -18,6 +18,7 @@ This application is a full-stack solution for managing static IP addresses. It c
 - Node.js and npm (for local development)
 
 ## Project Structure
+```
 ip-manager/
 ├── frontend/
 │   ├── src/
@@ -30,7 +31,7 @@ ip-manager/
 ├── Dockerfile
 ├── package.json
 └── README.md
-
+```
 ## Setup and Running
 
 1. Clone the repository:
